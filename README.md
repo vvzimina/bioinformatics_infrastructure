@@ -1,2 +1,21 @@
-# bioinformatics_infrastructure
-Repo for bioinformatics infrastructure homework 
+# Dependencies management
+
+## Theory
+*1, 2. What is Docker, and how it differs from dependencies management systems? From virtual machines? What are the advantages and disadvantages of using containers over other approaches?*
+
+Docker is a software that divides kernel into multiple isolated user space instances, called containers. These containers have their own software, libraries and configuration files, they can even been build on different operating systems. They are more than dependency management systems, because those only have a set of packages for different softwares while containers also can have OS configuration and a set of commands that should be run together with the container building. It makes extremely easy to reproduce the exact conditions for the service you are going to run inside the container. They are also different from virtual machines which must have its own operating system while docker containers share the host operating system. It makes docker containers ligther and easily portable, but more prone to security risks and vulnerabilities. Apart from that, VMs can emulate more than one OS at the moment, while docker containers are restricted to single one, which makes them easier to maintain and scale, but not applicable for problems where several OS are needed. Finally, once a VM is assigned to a resource, it takes up the whole space, even when it needs less, while containers resources can be allocated dynamically according to its needs.
+
+
+*3. Explain how Docker works: what are Dockerfiles, how are containers created, and how are they run and destroyed?*
+
+Docker uses a client-server architecture. The Docker client communicates using a REST API, over UNIX sockets or a network interface with Docker daemon. The Docker daemon manages Docker objects such as images, containers, networks, and volumes. An image is a read-only template with instructions for creating a Docker container. Often, an image is based on another image, with some additional customization. Docker can build images automatically by reading the instructions from a Dockerfile. A Dockerfile is a text document that contains all the commands a user could call on the command line to assemble an image. A container is a runnable instance of an image. Containers can be created, started, run, stoped, moved, or deleted -- all via commands to Docker client. Container is defined both by its image as well as any configuration options user provides to it when he/she creates or starts it. When a container is removed, any changes to its state that are not stored in persistent storage disappear. It is also possible create new image from the current state of container.
+
+*5. Name and describe at least one Docker competitor (i.e., a tool based on the same containerization technology).*
+
+First, let's define what exactly is the technology that Docker is build on. It is called `namespaces`. It takes advantage of several features of the Linux kernel to deliver its functionality i.e. provide the isolated workspace called the container. When the container is being created, Docker creates a set of `namespaces` for it, which provide a layer of isolation. Each aspect of a container runs in a separate `namespace` and its access is limited to that `namespace`.
+
+The same technology is used in Podman, a container engine developed by RedHat. Podman maintains compatibility with the OCI container image spec just like Docker, meaning Podman can run container images produced by Docker and vice versa. Podman’s command line interface is identical to Docker’s, including the arguments. So, they are almost identical, except for the fact that Podman does not have daemon. Instead, the containers are started as child processes of the Podman process, heavily using user namespaces and network namespaces. The plus side of such change is that there’s no persistent connection to some long-living process, which failures automatically fail everything else. Podman also differentiates from Docker by using rootless containers by default.
+
+*6. What is conda? How it differs from apt, yarn, and others?*
+
+Conda is environment and package managing system. The ability to create virtual environments and install same packages, but with different versions to different environment, if needed, is what differs conda from apt, yarn and other tools for managing packages.
