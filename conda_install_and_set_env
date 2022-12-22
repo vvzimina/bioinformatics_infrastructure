@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# getting conda
+wget https://repo.continuum.io/archive/Anaconda3-2022.10-MacOSX-x86_64.sh
+bash Anaconda3-2022.10-MacOSX-x86_64.sh
+
+# as we get specific version, it is better to put update here for the future
+conda update -n base -c defaults conda 
+
+# creating environment
+conda create --prefix ./envs/cool_bioinf_env 
+
+# installing packages to environment
+conda activate ./envs/cool_bioinf_env
+conda config --add channels bioconda
+conda config --add channels conda-forge  
+conda install fastqc=0.11.9 
+conda install STAR=2.7.10b 
+conda install samtools=1.16.1 
+conda install picard=2.27.5  # bioconda has only previous version, so we will need to push newest version in its repo
+conda install bedtools=2.30.0 
+conda install multiqc=1.13 
+conda install salmon=1.9.0
+
+# exporting environment
+conda env export cool_bioinf_env > cool_bioinf_env.yml
+conda deactivate # to check if we can rebuild it from file
+
+# checking if we can rebuild it
+conda env create -f cool_bioinf_env.yml
+conda activate cool_bioinf_env.yml
+conda env list
