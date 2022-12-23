@@ -4,36 +4,61 @@ Repo for bioinformatics infrastructure homework
 ## Theory [2]
 
 * [0.4] What are [computer ports](https://www.cloudflare.com/learning/network-layer/what-is-a-computer-port/) on a high level? How many ports are there on a typical computer?
+
 Порт - это конкретный адрес приема/отправки информации в сеть в пределах одного устройства. Если наш компьютер - это многоквартирный дом (его адрес = IP адрес), то порт означает номер конкретной двери. Порты могут отличаться разными сетевыми протоколами.
-The numbers go from 0 to 65535, which is a 16-bit number => 65536 total ports
+Номера портов бывают от 0 до 65535, так как записываются 16-битным числом => 65536 портов всего.
 
 * [0.4] What is the difference between http, https, ssh, and other protocols? In what sense are they similar? Name default ports for several data transfer protocols.
+
 http - протокол для передачи гипертекста, https - он же, но более безопасный за счет использования шифрованного канала. SSH еще более безопасный протокол, который шифрует всю информацию (сами данные могут быть любыми), используется для передачи паролей и конфиденциальной информации, удаленным управлением других устройств. Разница между протоколами может быть в том, для каких типов данных они предназначены, насколько гарантируют доставку данных, как и на каком этапе защищают данные или канал передачи.
 
-http - 80
-https - 443
-ssh - 22
-smtp - 25
-dns - 53
+http - 80; 
+https - 443; 
+ssh - 22; 
+smtp - 25; 
+dns - 53; 
 
 * [0.4] Explain briefly: (1) what is IP, (2) what IPs are called 'white'/public, (3) and what happens when you enter 'google.com' into the web browser. 
-(1) IP is an address (identifier) that allows information to be sent between devices on a network: they contain location information and make devices accessible for communication. **СКОПИРОВАНО с https://www.kaspersky.com/resource-center/definitions/what-is-an-ip-address
-(2) Так как общее количество IP адресов ограничено (4,294,967,296 for IPv4) и меньше, чем устройств, то по умолчанию устройство не имеет белого/публичного/фиксированного IP адреса. Но если кто-то хочет получить "прописку" в сети, то он должен оформить себе белый=официальный IP, который будет занесен в реестр.
-(3) 'google.com' is the domain name of the site. It is the memorable address and points to a specific server’s IP address. **СКОПИРОВАНО из https://aws.amazon.com/ru/blogs/mobile/what-happens-when-you-type-a-url-into-your-browser/
--> Browser looks up IP address for the domain (the browser needs to figure out which server on the Internet to connect to. To do that, it needs to look up the IP address of the server hosting the website using the domain you typed in)
--> Browser initiates TCP connection with the server and data moving between you and specified server
+
+(1) IP - это адрес (идентификатор) который  позволяет обмениваться информацией между устройствами в сети. Такой адрес содержит в себе информацию о местонахождении и устроуйства и позволяет найти его в сети.
+
+(2) Так как общее количество IP адресов ограничено (4,294,967,296 для IPv4) и меньше, чем устройств, то по умолчанию устройство не имеет белого/публичного/фиксированного IP адреса. Но если кто-то хочет получить "прописку" в сети, то он должен оформить себе белый=официальный IP, который будет занесен в реестр.
+
+(3) 'google.com' это доменное имя сайта. Оно "красивое/человекочитаемое" имя для конкретного IP адреса сервера или прочего устройства.
+
+-> После нажатия 'enter' браузер ищет IP адрес домена, чтобы позднее организовать коннект до сервера. Для этого бразуер смотрит справочник доменов-адресов у себя в памяти или, если не находит, запрашивает на DNS сервере.
+
+-> Браузер инициирует TCP протокол соединения (так как https редполагает именно этот протокол) с сервером и они начинают обмениваться данными.
 
 * [0.4] What is Nginx? How does it work on the high level? List several alternative web servers.
-это программа для развертывания собственного веб-сервера. Может использоваться как независимый полноценный сервер, так и прокси с переадресацией веб-запросов на другие сервера.
-Этот сервис использует открытый исходный код и доступен любому для редактирования и подстраивания под свои нужды.
+
+Это программа для развертывания собственного веб-сервера. Может использоваться как независимый полноценный сервер, так и прокси (доверенный адрес) с переадресацией веб-запросов на другие сервера. Этот сервис использует открытый исходный код и доступен любому для редактирования и подстраивания под свои нужды.
+
 Когда пользователь совершает действие на странице, информация передается на сервер. Он находит файлы, передает сведения. Запросы от одного пользователя разбиваются на маленькие структуры — сетевые соединения. Обработка происходит быстрее: за однотипные действия отвечает один процесс. После обработки соединения собираются в одном виртуальном контейнере, чтобы преобразоваться в единый первоначальный запрос, а затем отправляются пользователю.
+
 Apache
 Tomcat
 LiteSpeed
 
 * [0.4] What is SSH, and for what is it typically used? Explain two ways to authenticate in an SSH server in detail.
-SSH or Secure Shell is a network communication protocol that enables two computers to communicate (c.f http or hypertext transfer protocol, which is the protocol used to transfer hypertext such as web pages) and share data. An inherent feature of ssh is that the communication between the two computers is encrypted meaning that it is suitable for use on insecure networks.
 
-SSH is often used to "login" and perform operations on remote computers but it may also be used for transferring data.
-**СКОПИРОВАНО из https://www.ucl.ac.uk/isd/what-ssh-and-how-do-i-use-it
+SSH или Secure Shell это сетевой протокол, который позволяет двум компьютерам взаимодействовать и обменивать данными. В отличии от прочих протоколов SSH концентрируется на безопасности и позволяет настраивать защищенное соединение, где канал и данные шифруются.
+
+SSH часто используется для удаленного управления компьютерами, но может использоваться и для передачи обычных данных.
+
+В основном для авторизации на SSH сервере используют пароль или ключ.
+
+Для подключения через пароль нам необходимо знать IP адрес сервера, логин, пароль.
+1. Входим в терминал.
+2. Вводим ssh root@xxx.xxx.xxx.xx -p yyy. root - наш логин. После @ идет IP-адрес сервера. Затем с помощью -p указывает порт. Но соединение может работать и без указания конкретного порта, если мы пользуемся стандартным (22).
+3. У нас запрашивает пароль, мы вводим. YES при первом входе на устройство.
+4. Готово.
+
+Более безопасным считается способ авторизации через ключ, так как пароль можно подобрать. Для использования этого метода генерится два SSH ключа: публичный и приватный. Первый отдается серверу, второй хранится на устройстве. При попытке подключения ключи взаимодействуют друг с другом и открывают доступ.
+1. Используем терминал.
+2. Вводим ssh-keygen для генерации ключей.
+3. Теперь копируем публичную часть ключа на сервер, для этого используем команду ssh-copy-id root@xxx.xxx.xxx.xx (root - наш логин, после @ идет IP адрес сервера).
+4. Теперь при входе через ssh root@xxx.xxx.xxx.xx мы сразу попадем на сервер и больше ничего вводить не придется.
+
+
 
