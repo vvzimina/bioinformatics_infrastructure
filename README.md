@@ -161,38 +161,7 @@ sudo apt install nginx
 
 # Устанавливаем jbrowse cli 
 npm install -g @jbrowse/cli
-
-# Проверяем версию jbrowse
-jbrowse --version
-# @jbrowse/cli/2.3.2 linux-x64 node-v12.22.9
-
-# создаем новый репозиторий jbrowse
-sudo chown -R vika /mnt
-jbrowse create /mnt/JBrowse
-
-# редактируем nginx.config
-sudo vi /etc/nginx/nginx.conf
-
-# перезагружаем nginx
-sudo systemctl restart nginx
-
-# проверяем статус nginx
- sudo systemctl status nginx
-
-# добавляем fasta файл
-sudo jbrowse add-assembly Homo_sapiens.GRCh38.dna.primary_assembly.fa --load copy --out /mnt/JBrowse
-
-# добавляем gff3 файл
-sudo jbrowse add-track sorted.Homo_sapiens.GRCh38.108.gff3.gz --load copy --out /mnt/JBrowse
-
-# добавляем BED файлы в jbrowse
-sudo jbrowse add-track sorted.ATACseq_HepG2.bed.gz --load copy --out /mnt/JBrowse
-sudo jbrowse add-track sorted.Chipseq_HEPG2_1.bed.gz --load copy --out /mnt/JBrowse
-sudo jbrowse add-track sorted.Chipseq_HEPG2_2.bed.gz --load copy --out /mnt/JBrowse
-sudo jbrowse add-track sorted.Chipseq_HEPG2_3.bed.gz --load copy --out /mnt/JBrowse
-
-# добавляем индексирование indexing 
-sudo jbrowse text-index --out //mnt/JBrowse
 ```
 
-Теперь наш браузер доступен по адресу http://158.160.16.15/jbrowse/ .
+![image](https://user-images.githubusercontent.com/121238982/209357494-c91ece71-7b72-4f44-870a-b5f299dd8427.png)
+
