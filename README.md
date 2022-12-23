@@ -80,50 +80,64 @@ cat .ssh/id_rsa.pub
 
 8. В терминале вводим
 ```bash
-ssh vika@158.160.22.16
+ssh vika@158.160.16.15
 ``` 
 и заходим на ВМ.
 
 ![image](https://user-images.githubusercontent.com/121238982/209333743-a67324fd-7fe4-4fbd-ae9f-8d5d7c979e1e.png)
 
-* [1] Download the latest human genome assembly (GRCh38) from the Ensemble FTP server ([fasta](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz), [GFF3](https://ftp.ensembl.org/pub/release-108/gff3/homo_sapiens/Homo_sapiens.GRCh38.108.gff3.gz)). Index the fasta using samtools (`samtools faidx`) and GFF3 using tabix. 
+* [1] Download the latest human genome assembly (GRCh38) from the Ensemble FTP server ([fasta](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz), [GFF3](https://ftp.ensembl.org/pub/release-108/gff3/homo_sapiens/Homo_sapiens.GRCh38.108.gff3.gz)). Index the fasta using samtools (`samtools faidx`) and GFF3 using tabix.
 
-1. Обновляем библиотеки на ВМ ```sudo apt-get update -y```
-2. Скачиваем библиотеку samtools ```sudo apt-get install -y samtools```
-3. Скачиваем нужные данные
 ```bash
+# 1. Обновляем библиотеки на ВМ
+sudo apt-get update -y
+
+# 2. Скачиваем библиотеку samtools
+sudo apt-get install -y samtools
+
+# 3. Скачиваем нужные данные
 wget https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz 
 wget https://ftp.ensembl.org/pub/release-108/gff3/homo_sapiens/Homo_sapiens.GRCh38.108.gff3.gz
-```
-4. Распаковываем их поочереди
-```bash
+
+# 4. Распаковываем их поочереди
 gzip -d Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 gzip -d Homo_sapiens.GRCh38.108.gff3.gz
-```
-5. Используем команду faidx библиотеки samtools для индексирования ```samtools faidx Homo_sapiens.GRCh38.dna.primary_assembly.fa```
-6. Скачиваем библиотеку tabix для индексирования GFF3 ```sudo apt-get install -y tabix```
-7. Сортируем GFF3, запаковываем в BGZF формат.
-```bash
+
+# 5. Используем команду faidx библиотеки samtools для индексирования
+samtools faidx Homo_sapiens.GRCh38.dna.primary_assembly.fa
+
+# 6. Скачиваем библиотеку tabix для индексирования GFF3
+sudo apt-get install -y tabix
+
+# 7. Сортируем GFF3, запаковываем в BGZF формат.
 (grep "^#" Homo_sapiens.GRCh38.108.gff3; grep -v "^#" Homo_sapiens.GRCh38.108.gff3 | sort -t"`printf '\t'`" -k1,1 -k4,4n) | bgzip > sorted.Homo_sapiens.GRCh38.108.gff3.gz
+
+# 8. Индексируем полученный файл с помощью tabix
+tabix -p gff sorted.Homo_sapiens.GRCh38.108.gff3.gz
 ```
-8. Индексируем полученный файл с помощью tabix ```tabix -p gff sorted.Homo_sapiens.GRCh38.108.gff3.gz```
 
 * [1] Select and download BED files for three ChIP-seq and one ATAC-seq experiment from the ENCODE (use one tissue/cell line). Sort, bgzip, and index them using tabix.
 
-1. **ATAC-seq** ```wget -O ATACseq_HepG2.bed.gz "https://www.encodeproject.org/files/ENCFF438JMM/@@download/ENCFF438JMM.bed.gz"```
-2. **ChIP-seq 1** ```wget -O Chipseq_HEPG2_1.bed.gz "https://www.encodeproject.org/files/ENCFF098YHT/@@download/ENCFF098YHT.bed.gz"```
-3. **ChIP-seq 2** ```wget -O Chipseq_HEPG2_2.bed.gz "https://www.encodeproject.org/files/ENCFF876KZM/@@download/ENCFF876KZM.bed.gz"```
-4. **ChIP-seq 3** ```wget -O Chipseq_HEPG2_3.bed.gz "https://www.encodeproject.org/files/ENCFF392IXY/@@download/ENCFF392IXY.bed.gz"```
-5. Распаковываем скачанные файлы: ```gunzip ATACseq_HepG2.bed.gz Chipseq_HEPG2_1.bed.gz Chipseq_HEPG2_2.bed.gz Chipseq_HEPG2_3.bed.gz```
-6. Убираем из BED файлов "chr"
 ```bash
+# 1. **ATAC-seq**
+wget -O ATACseq_HepG2.bed.gz "https://www.encodeproject.org/files/ENCFF438JMM/@@download/ENCFF438JMM.bed.gz"
+# 2. **ChIP-seq 1**
+wget -O Chipseq_HEPG2_1.bed.gz "https://www.encodeproject.org/files/ENCFF098YHT/@@download/ENCFF098YHT.bed.gz"
+# 3. **ChIP-seq 2**
+wget -O Chipseq_HEPG2_2.bed.gz "https://www.encodeproject.org/files/ENCFF876KZM/@@download/ENCFF876KZM.bed.gz"
+# 4. **ChIP-seq 3**
+wget -O Chipseq_HEPG2_3.bed.gz "https://www.encodeproject.org/files/ENCFF392IXY/@@download/ENCFF392IXY.bed.gz"
+
+# 5. Распаковываем скачанные файлы:
+gunzip ATACseq_HepG2.bed.gz Chipseq_HEPG2_1.bed.gz Chipseq_HEPG2_2.bed.gz Chipseq_HEPG2_3.bed.gz
+
+# 6. Убираем из BED файлов "chr"
 sed 's/^chr\|%$//g' ATACseq_HepG2.bed > cleaned.ATACseq_HepG2.bed
 sed 's/^chr\|%$//g' Chipseq_HEPG2_1.bed > cleaned.Chipseq_HEPG2_1.bed
 sed 's/^chr\|%$//g' Chipseq_HEPG2_2.bed > cleaned.Chipseq_HEPG2_2.bed
 sed 's/^chr\|%$//g' Chipseq_HEPG2_3.bed > cleaned.Chipseq_HEPG2_3.bed
-```
-7. Сортируем и индексируем
-```bash
+
+# 7. Сортируем и индексируем
 sort -V -k1,1 -k2,2 cleaned.ATACseq_HepG2.bed | bgzip > sorted.ATACseq_HepG2.bed.gz
 tabix -s 1 -b 2 -e 3 sorted.ATACseq_HepG2.bed.gz
 sort -V -k1,1 -k2,2 cleaned.Chipseq_HEPG2_1.bed | bgzip > sorted.Chipseq_HEPG2_1.bed.gz
@@ -136,34 +150,48 @@ tabix -s 1 -b 2 -e 3 sorted.Chipseq_HEPG2_3.bed.gz
 
 **JBrowse 2**
 * [1] Download and install [JBrowse 2](https://jbrowse.org/jb2/). Create a new jbrowse [repository](https://jbrowse.org/jb2/docs/cli/#jbrowse-create-localpath) in `/mnt/JBrowse/` (or some other folder).
-* [0.25] Install nginx and amend its config(/etc/nginx/nginx.conf) to contain the following section:
-```conf
-http {
-  # Don't touch other options!
-  # ........
-  # ........
+* [0.25] Install nginx and amend its config(/etc/nginx/nginx.conf) to contain the following section: {}
 
-  # Comment this line(!):
-  # include /etc/nginx/sites-enabled/*;
+```bash
+# Скачиваем библиотеки, которые понадобятся дальше
+sudo apt install build-essential zlib1g-dev
+sudo apt install npm
+sudo apt install genometools
+sudo apt install nginx
 
-  # Add this:
-  server {
-    listen 80 default_server;
-    index index.html;
-    server_name _;
+# Устанавливаем jbrowse cli 
+npm install -g @jbrowse/cli
 
-    location /jbrowse/ {
-      alias /mnt/JBrowse/;	
-    }
-  }
-}
+# Проверяем версию jbrowse
+jbrowse --version
+# @jbrowse/cli/2.3.2 linux-x64 node-v12.22.9
+
+# создаем новый репозиторий jbrowse
+jbrowse create /mnt/JBrowse
+
+# редактируем nginx.config
+sudo vi /etc/nginx/nginx.conf
+
+# перезагружаем nginx
+sudo systemctl restart nginx
+
+# проверяем статус nginx
+ sudo systemctl status nginx
+
+# добавляем fasta файл
+sudo jbrowse add-assembly Homo_sapiens.GRCh38.dna.primary_assembly.fa --load copy --out /mnt/JBrowse
+
+# добавляем gff3 файл
+sudo jbrowse add-track sorted.Homo_sapiens.GRCh38.108.gff3.gz --load copy --out /mnt/JBrowse
+
+# добавляем BED файлы в jbrowse
+sudo jbrowse add-track sorted.ATACseq_HepG2.bed.gz --load copy --out /mnt/JBrowse
+sudo jbrowse add-track sorted.Chipseq_HEPG2_1.bed.gz --load copy --out /mnt/JBrowse
+sudo jbrowse add-track sorted.Chipseq_HEPG2_2.bed.gz --load copy --out /mnt/JBrowse
+sudo jbrowse add-track sorted.Chipseq_HEPG2_3.bed.gz --load copy --out /mnt/JBrowse
+
+# добавляем индексирование indexing 
+sudo jbrowse text-index --out //mnt/JBrowse
 ```
 
-* [0.25] Restart the nginx (reload its config) and make sure that you can access the browser using a link like this: `http://64.129.58.13/jbrowse/`. Here `64.129.58.13` is your public IP address.
-* [1] Add your files (BED & FASTA & GFF3) to the genome browser and verify that everything works as intended. Don't forget to [index](https://jbrowse.org/jb2/docs/cli/#jbrowse-text-index) the genome annotation, so you could later search by gene names. Provide a [persistent link](https://jbrowse.org/jb2/docs/user_guides/basic_usage/#sharing-sessions) to a JBrowse 2 session with all your BED files and the genome annotation in the report (like [this](https://jbrowse.org/code/jb2/v2.3.1/?session=share-HShsEcnq3i&password=nYzTU)). *I must be able to access it without problems later.*
-
-
-**Common mistakes**:
-* Using `/home/username` folder for JBrowse. Don't do this - you will have permission issues (403 forbidden) because by default home is only available to your user, not to the nginx user(group).
-* No trailing `/` in the config (`/jbrowse/`, `/mnt/JBrowse/`), or in the URL (`http://64.129.58.13/jbrowse/`).
-* If you have added tracks but they are not showing up in JBrowse - try reloading the page or use a private/incognito window.
+Теперь наш браузер доступен по адресу http://158.160.16.15/jbrowse/ .
