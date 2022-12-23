@@ -36,9 +36,7 @@ dns - 53;
 
 Когда пользователь совершает действие на странице, информация передается на сервер. Он находит файлы, передает сведения. Запросы от одного пользователя разбиваются на маленькие структуры — сетевые соединения. Обработка происходит быстрее: за однотипные действия отвечает один процесс. После обработки соединения собираются в одном виртуальном контейнере, чтобы преобразоваться в единый первоначальный запрос, а затем отправляются пользователю.
 
-Apache
-Tomcat
-LiteSpeed
+Apache, Tomcat, LiteSpeed
 
 * [0.4] What is SSH, and for what is it typically used? Explain two ways to authenticate in an SSH server in detail.
 
@@ -60,5 +58,57 @@ SSH часто используется для удаленного управл
 3. Теперь копируем публичную часть ключа на сервер, для этого используем команду ssh-copy-id root@xxx.xxx.xxx.xx (root - наш логин, после @ идет IP адрес сервера).
 4. Теперь при входе через ssh root@xxx.xxx.xxx.xx мы сразу попадем на сервер и больше ничего вводить не придется.
 
+## Problem [6.5]
+**Remote Server**:
+* [2] Create a new virtual machine in the Yandex/Mail/etc cloud (order at least 10GB of free disk space). Generate SSH key pair and use it to connect to your server.
+
+1. Сначала создаем SSH ключи. **ssh-keygen -b 4096 -t rsa**.
+2. Сохраняем в стандартную папку. Кодовую фразу (не) задаем.
+3. Получаем публичный ключ. **cat .ssh/id_rsa.pub**.
+4. Создаем аккаунт на ЯОблаке. Создаем платежный аккаунт с пробным периодом.
+5. Создаем виртуальную машину. Ubuntu 22.04, hdd 15gb, 2 cpu intel ice lake, 2gb ram, публ. ip автоматически
+6. Создаем сервисный аккаунт, сообщаем наш ssh публичный ключ из п.3. Задаем логин.
+7. Дожидаемся статуса running для ВМ.
+
+![image](https://user-images.githubusercontent.com/121238982/209333500-6736426b-dc9c-48eb-b08d-38d3385579c0.png)
+
+8. В терминале вводим ssh vika@158.160.22.16 и заходим на ВМ.
+
+![image](https://user-images.githubusercontent.com/121238982/209333743-a67324fd-7fe4-4fbd-ae9f-8d5d7c979e1e.png)
+
+* [1] Download the latest human genome assembly (GRCh38) from the Ensemble FTP server ([fasta](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz), [GFF3](https://ftp.ensembl.org/pub/release-108/gff3/homo_sapiens/Homo_sapiens.GRCh38.108.gff3.gz)). Index the fasta using samtools (`samtools faidx`) and GFF3 using tabix. 
+* [1] Select and download BED files for three ChIP-seq and one ATAC-seq experiment from the ENCODE (use one tissue/cell line). Sort, bgzip, and index them using tabix.
+
+**JBrowse 2**
+* [1] Download and install [JBrowse 2](https://jbrowse.org/jb2/). Create a new jbrowse [repository](https://jbrowse.org/jb2/docs/cli/#jbrowse-create-localpath) in `/mnt/JBrowse/` (or some other folder).
+* [0.25] Install nginx and amend its config(/etc/nginx/nginx.conf) to contain the following section:
+```conf
+http {
+  # Don't touch other options!
+  # ........
+  # ........
+
+  # Comment this line(!):
+  # include /etc/nginx/sites-enabled/*;
+
+  # Add this:
+  server {
+    listen 80 default_server;
+    index index.html;
+    server_name _;
+
+    location /jbrowse/ {
+      alias /mnt/JBrowse/;	
+    }
+  }
+}
+```
+
+* [0.25] Restart the nginx (reload its config) and make sure that you can access the browser using a link like this: `http://64.129.58.13/jbrowse/`. Here `64.129.58.13` is your public IP address.
+* [1] Add your files (BED & FASTA & GFF3) to the genome browser and verify that everything works as intended. Don't forget to [index](https://jbrowse.org/jb2/docs/cli/#jbrowse-text-index) the genome annotation, so you could later search by gene names. Provide a [persistent link](https://jbrowse.org/jb2/docs/user_guides/basic_usage/#sharing-sessions) to a JBrowse 2 session with all your BED files and the genome annotation in the report (like [this](https://jbrowse.org/code/jb2/v2.3.1/?session=share-HShsEcnq3i&password=nYzTU)). *I must be able to access it without problems later.*
 
 
+**Common mistakes**:
+* Using `/home/username` folder for JBrowse. Don't do this - you will have permission issues (403 forbidden) because by default home is only available to your user, not to the nginx user(group).
+* No trailing `/` in the config (`/jbrowse/`, `/mnt/JBrowse/`), or in the URL (`http://64.129.58.13/jbrowse/`).
+* If you have added tracks but they are not showing up in JBrowse - try reloading the page or use a private/incognito window.
