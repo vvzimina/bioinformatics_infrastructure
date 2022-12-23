@@ -167,6 +167,7 @@ jbrowse --version
 # @jbrowse/cli/2.3.2 linux-x64 node-v12.22.9
 
 # создаем новый репозиторий jbrowse
+sudo chown -R vika /mnt
 jbrowse create /mnt/JBrowse
 
 # редактируем nginx.config
