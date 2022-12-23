@@ -258,6 +258,20 @@ RUN apt-get update &&\
     ln -s /FastQC/fastqc /home/bin/fastqc &&\
     # cleaning rubbish
     rm -rf /tmp/fastqc_v0.11.9.zip
+    
+# add bin dir to PATH
+ENV PATH /home/bin:${PATH}
+
+
+# add labels
+LABEL author="Victoria Zimina" \
+      maintainer="vzimina@nes.ru"
+
+ARG BUILD_DATE 
+ARG BUILD_VERSION
+LABEL   org.label-schema.build-date=$BUILD_DATE \
+        org.label-schema.version=$BUILD_VERSION \
+        org.label-schema.description="RNA-seq analysis pipeline dependencies: fastqc=0.11.9, STAR=2.7.10b, samtools=1.16.1, picard=2.27.5, salmon=1.9.0, bedtools=2.30.0, multiqc=1.13" \
 ```
 
 Собираем образ из Dockerfile и запускаем контейнер.
