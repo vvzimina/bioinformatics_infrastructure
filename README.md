@@ -99,9 +99,6 @@ sudo apt-get install -y samtools
 3. Скачиваем нужные данные
 ```bash
 wget https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz 
-
-и 
-
 wget https://ftp.ensembl.org/pub/release-108/gff3/homo_sapiens/Homo_sapiens.GRCh38.108.gff3.gz
 ```
 4. Распаковываем их поочереди
@@ -109,7 +106,7 @@ wget https://ftp.ensembl.org/pub/release-108/gff3/homo_sapiens/Homo_sapiens.GRCh
 gzip -d Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 gzip -d Homo_sapiens.GRCh38.108.gff3.gz
 ```
-7. Используем команду faidx библиотеки samtools для индексирования **samtools faidx Homo_sapiens.GRCh38.dna.primary_assembly.fa**
+5. Используем команду faidx библиотеки samtools для индексирования ```bash samtools faidx Homo_sapiens.GRCh38.dna.primary_assembly.fa```
 8. Скачиваем библиотеку tabix для индексирования GFF3 **sudo apt-get install -y tabix**
 9. Сортируем GFF3, запаковываем в BGZF формат. **(grep "^#" Homo_sapiens.GRCh38.108.gff3; grep -v "^#" Homo_sapiens.GRCh38.108.gff3 | sort -t"`printf '\t'`" -k1,1 -k4,4n) | bgzip > sorted.Homo_sapiens.GRCh38.108.gff3.gz**
 10. Индексируем полученный файл с помощью tabix **tabix -p gff sorted.Homo_sapiens.GRCh38.108.gff3.gz**
