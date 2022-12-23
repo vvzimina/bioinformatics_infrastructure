@@ -62,9 +62,15 @@ SSH часто используется для удаленного управл
 **Remote Server**:
 * [2] Create a new virtual machine in the Yandex/Mail/etc cloud (order at least 10GB of free disk space). Generate SSH key pair and use it to connect to your server.
 
-1. Сначала создаем SSH ключи. **ssh-keygen -b 4096 -t rsa**.
+1. Сначала создаем SSH ключи.
+```bash
+ssh-keygen -b 4096 -t rsa
+```
 2. Сохраняем в стандартную папку. Кодовую фразу (не) задаем.
-3. Получаем публичный ключ. **cat .ssh/id_rsa.pub**.
+3. Получаем публичный ключ.
+```bash
+cat .ssh/id_rsa.pub
+```
 4. Создаем аккаунт на ЯОблаке. Создаем платежный аккаунт с пробным периодом.
 5. Создаем виртуальную машину. Ubuntu 22.04, hdd 15gb, 2 cpu intel ice lake, 2gb ram, публ. ip автоматически
 6. Создаем сервисный аккаунт, сообщаем наш ssh публичный ключ из п.3. Задаем логин.
@@ -72,11 +78,42 @@ SSH часто используется для удаленного управл
 
 ![image](https://user-images.githubusercontent.com/121238982/209333500-6736426b-dc9c-48eb-b08d-38d3385579c0.png)
 
-8. В терминале вводим ssh vika@158.160.22.16 и заходим на ВМ.
+8. В терминале вводим
+```bash
+ssh vika@158.160.22.16
+``` 
+и заходим на ВМ.
 
 ![image](https://user-images.githubusercontent.com/121238982/209333743-a67324fd-7fe4-4fbd-ae9f-8d5d7c979e1e.png)
 
 * [1] Download the latest human genome assembly (GRCh38) from the Ensemble FTP server ([fasta](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz), [GFF3](https://ftp.ensembl.org/pub/release-108/gff3/homo_sapiens/Homo_sapiens.GRCh38.108.gff3.gz)). Index the fasta using samtools (`samtools faidx`) and GFF3 using tabix. 
+
+1. Обновляем библиотеки на ВМ 
+```bash
+sudo apt-get update -y
+```
+2. Скачиваем библиотеку samtools
+```bash
+sudo apt-get install -y samtools
+```
+3. Скачиваем нужные данные
+```bash
+wget https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz 
+
+и 
+
+wget https://ftp.ensembl.org/pub/release-108/gff3/homo_sapiens/Homo_sapiens.GRCh38.108.gff3.gz
+```
+4. Распаковываем их поочереди
+```bash
+gzip -d Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+gzip -d Homo_sapiens.GRCh38.108.gff3.gz
+```
+7. Используем команду faidx библиотеки samtools для индексирования **samtools faidx Homo_sapiens.GRCh38.dna.primary_assembly.fa**
+8. Скачиваем библиотеку tabix для индексирования GFF3 **sudo apt-get install -y tabix**
+9. Сортируем GFF3, запаковываем в BGZF формат. **(grep "^#" Homo_sapiens.GRCh38.108.gff3; grep -v "^#" Homo_sapiens.GRCh38.108.gff3 | sort -t"`printf '\t'`" -k1,1 -k4,4n) | bgzip > sorted.Homo_sapiens.GRCh38.108.gff3.gz**
+10. Индексируем полученный файл с помощью tabix **tabix -p gff sorted.Homo_sapiens.GRCh38.108.gff3.gz**
+
 * [1] Select and download BED files for three ChIP-seq and one ATAC-seq experiment from the ENCODE (use one tissue/cell line). Sort, bgzip, and index them using tabix.
 
 **JBrowse 2**
