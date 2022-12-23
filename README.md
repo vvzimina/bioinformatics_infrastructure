@@ -88,14 +88,8 @@ ssh vika@158.160.22.16
 
 * [1] Download the latest human genome assembly (GRCh38) from the Ensemble FTP server ([fasta](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz), [GFF3](https://ftp.ensembl.org/pub/release-108/gff3/homo_sapiens/Homo_sapiens.GRCh38.108.gff3.gz)). Index the fasta using samtools (`samtools faidx`) and GFF3 using tabix. 
 
-1. Обновляем библиотеки на ВМ 
-```bash
-sudo apt-get update -y
-```
-2. Скачиваем библиотеку samtools
-```bash
-sudo apt-get install -y samtools
-```
+1. Обновляем библиотеки на ВМ ```sudo apt-get update -y```
+2. Скачиваем библиотеку samtools ```sudo apt-get install -y samtools```
 3. Скачиваем нужные данные
 ```bash
 wget https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz 
@@ -106,12 +100,39 @@ wget https://ftp.ensembl.org/pub/release-108/gff3/homo_sapiens/Homo_sapiens.GRCh
 gzip -d Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 gzip -d Homo_sapiens.GRCh38.108.gff3.gz
 ```
-5. Используем команду faidx библиотеки samtools для индексирования ```bash samtools faidx Homo_sapiens.GRCh38.dna.primary_assembly.fa```
-8. Скачиваем библиотеку tabix для индексирования GFF3 **sudo apt-get install -y tabix**
-9. Сортируем GFF3, запаковываем в BGZF формат. **(grep "^#" Homo_sapiens.GRCh38.108.gff3; grep -v "^#" Homo_sapiens.GRCh38.108.gff3 | sort -t"`printf '\t'`" -k1,1 -k4,4n) | bgzip > sorted.Homo_sapiens.GRCh38.108.gff3.gz**
-10. Индексируем полученный файл с помощью tabix **tabix -p gff sorted.Homo_sapiens.GRCh38.108.gff3.gz**
+5. Используем команду faidx библиотеки samtools для индексирования ```samtools faidx Homo_sapiens.GRCh38.dna.primary_assembly.fa```
+6. Скачиваем библиотеку tabix для индексирования GFF3 ```sudo apt-get install -y tabix```
+7. Сортируем GFF3, запаковываем в BGZF формат.
+```bash
+(grep "^#" Homo_sapiens.GRCh38.108.gff3; grep -v "^#" Homo_sapiens.GRCh38.108.gff3 | sort -t"`printf '\t'`" -k1,1 -k4,4n) | bgzip > sorted.Homo_sapiens.GRCh38.108.gff3.gz
+```
+8. Индексируем полученный файл с помощью tabix ```tabix -p gff sorted.Homo_sapiens.GRCh38.108.gff3.gz```
 
 * [1] Select and download BED files for three ChIP-seq and one ATAC-seq experiment from the ENCODE (use one tissue/cell line). Sort, bgzip, and index them using tabix.
+
+1. **ATAC-seq** ```wget -O ATACseq_HepG2.bed.gz "https://www.encodeproject.org/files/ENCFF438JMM/@@download/ENCFF438JMM.bed.gz"```
+2. **ChIP-seq 1** ```wget -O Chipseq_HEPG2_1.bed.gz "https://www.encodeproject.org/files/ENCFF098YHT/@@download/ENCFF098YHT.bed.gz"```
+3. **ChIP-seq 2** ```wget -O Chipseq_HEPG2_2.bed.gz "https://www.encodeproject.org/files/ENCFF876KZM/@@download/ENCFF876KZM.bed.gz"```
+4. **ChIP-seq 3** ```wget -O Chipseq_HEPG2_3.bed.gz "https://www.encodeproject.org/files/ENCFF392IXY/@@download/ENCFF392IXY.bed.gz"```
+5. Распаковываем скачанные файлы: ```gunzip ATACseq_HepG2.bed.gz Chipseq_HEPG2_1.bed.gz Chipseq_HEPG2_2.bed.gz Chipseq_HEPG2_3.bed.gz```
+6. Убираем из BED файлов "chr"
+```bash
+sed 's/^chr\|%$//g' ATACseq_HepG2.bed > cleaned.ATACseq_HepG2.bed
+sed 's/^chr\|%$//g' Chipseq_HEPG2_1.bed > cleaned.Chipseq_HEPG2_1.bed
+sed 's/^chr\|%$//g' Chipseq_HEPG2_2.bed > cleaned.Chipseq_HEPG2_2.bed
+sed 's/^chr\|%$//g' Chipseq_HEPG2_3.bed > cleaned.Chipseq_HEPG2_3.bed
+```
+7. Сортируем и индексируем
+```bash
+sort -V -k1,1 -k2,2 cleaned.ATACseq_HepG2.bed | bgzip > sorted.ATACseq_HepG2.bed.gz
+tabix -s 1 -b 2 -e 3 sorted.ATACseq_HepG2.bed.gz
+sort -V -k1,1 -k2,2 cleaned.Chipseq_HEPG2_1.bed | bgzip > sorted.Chipseq_HEPG2_1.bed.gz
+tabix -s 1 -b 2 -e 3 sorted.Chipseq_HEPG2_1.bed.gz
+sort -V -k1,1 -k2,2 cleaned.Chipseq_HEPG2_2.bed | bgzip > sorted.Chipseq_HEPG2_2.bed.gz
+tabix -s 1 -b 2 -e 3 sorted.Chipseq_HEPG2_2.bed.gz
+sort -V -k1,1 -k2,2 cleaned.Chipseq_HEPG2_3.bed | bgzip > sorted.Chipseq_HEPG2_3.bed.gz
+tabix -s 1 -b 2 -e 3 sorted.Chipseq_HEPG2_3.bed.gz
+```
 
 **JBrowse 2**
 * [1] Download and install [JBrowse 2](https://jbrowse.org/jb2/). Create a new jbrowse [repository](https://jbrowse.org/jb2/docs/cli/#jbrowse-create-localpath) in `/mnt/JBrowse/` (or some other folder).
